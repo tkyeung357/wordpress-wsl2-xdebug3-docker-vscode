@@ -1,0 +1,33 @@
+version: '3.3'
+services:
+  db:
+    container_name: 'local-wordpress-db'
+    image: 'mysql:5.7'
+    # volumes:
+      # - './data/mysql:/var/lib/mysql'
+    ports:
+      - 13306:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: wordpress_db
+      MYSQL_USER: wordpress_user
+      MYSQL_PASSWORD: wordpress_password
+
+  wordpress:
+    container_name: 'local-wordpress'
+    depends_on:
+      - db
+    build:
+      context: .
+      dockerfile: Dockerfile-xdebug
+    ports:
+      - '80:80'
+    environment:
+      WORDPRESS_DB_HOST: 'db:3306'
+      WORDPRESS_DB_USER: wordpress_user
+      WORDPRESS_DB_PASSWORD: wordpress_password
+      WORDPRESS_DB_NAME: wordpress_db
+      WP_ENVIRONMENT_TYPE: 'local'
+      XDEBUG_CONFIG: 'client_host=host.docker.internal remote_enable=1'
+    volumes:
+      - "./wordpress:/var/www/html"
